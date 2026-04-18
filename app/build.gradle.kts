@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    //    alias(libs.plugins.google.services)
 }
 
 android {
@@ -11,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.myapplication"
+        applicationId = "com.example.hypeKicks"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -28,6 +29,9 @@ android {
                 "proguard-rules.pro"
             )
         }
+        buildFeatures{
+            viewBinding=true
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -41,6 +45,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
