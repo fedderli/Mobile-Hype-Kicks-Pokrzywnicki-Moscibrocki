@@ -3,6 +3,7 @@ package com.example.myapplication
 import java.io.Serializable
 
 data class KicksModel(
+    var id: String = "",
     val brand: String = "",
     val imageUrl: String= "",
     val modelName: String= "",

@@ -77,6 +77,12 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
         })
+
+
+        binding.switchViewAddminButton.setOnClickListener {
+            val intent = android.content.Intent(this, AdminActivity::class.java)
+            startActivity(intent)
+        }
     }
 
 
@@ -104,14 +110,9 @@ class MainActivity : AppCompatActivity() {
             .addOnSuccessListener { documents ->
                 kicksList.clear()
 
-                for (document in documents){
-                    val brand = document.getString("brand") ?: "Nieznana marka"
-                    val modelName = document.getString("modelName") ?: "Nieznany Buty"
-                    val imageUrl = document.getString("imageUrl") ?: ""
-                    val relesaseYear = document.getLong("releaseYear")?.toInt() ?: 0
-                    val price = document.getLong("resellPrice")?.toInt() ?: 0
-
-                    val kick = KicksModel(brand,imageUrl,modelName,relesaseYear, price)
+                for (document in documents) {
+                    val kick = document.toObject(KicksModel::class.java)
+                    kick.id = document.id
                     allKicksList.add(kick)
                 }
 
