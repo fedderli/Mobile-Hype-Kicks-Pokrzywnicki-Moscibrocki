@@ -10,6 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 
 class MainActivity : AppCompatActivity() {
@@ -17,8 +18,18 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     lateinit var kicksList: MutableList<KicksModel>
     lateinit var adapter: KicksAdapter
+
+    private lateinit var allKicksList: MutableList<KicksModel>
     val db = FirebaseFirestore.getInstance()
 
+
+    override fun onResume() {
+        super.onResume()
+
+        binding.kicksSearchView.setQuery("",false)
+
+        binding.kicksSearchView.clearFocus()
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +47,8 @@ class MainActivity : AppCompatActivity() {
         //seedDataBase()
         kicksList = mutableListOf()
 
+        allKicksList = mutableListOf()
+
         adapter = KicksAdapter(this, kicksList)
         binding.kicksGridView.adapter = adapter
 
@@ -52,8 +65,38 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
 
         }
+
+
+        binding.kicksSearchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                filterKicks(newText ?: "")
+                return true
+            }
+        })
     }
 
+
+    private fun filterKicks(query: String){
+        kicksList.clear()
+
+        if (query.isEmpty()){
+            kicksList.addAll(allKicksList)
+        }else{
+            val lowerCaseQuery = query.lowercase()
+
+            for(kick in allKicksList){
+                if (kick.modelName.lowercase().contains(lowerCaseQuery)){
+                    kicksList.add(kick)
+                }
+            }
+        }
+
+        adapter.notifyDataSetChanged()
+    }
 
     private fun fetchDataFromCloud(){
         db.collection("HypeKicks")
@@ -69,8 +112,11 @@ class MainActivity : AppCompatActivity() {
                     val price = document.getLong("resellPrice")?.toInt() ?: 0
 
                     val kick = KicksModel(brand,imageUrl,modelName,relesaseYear, price)
-                    kicksList.add(kick)
+                    allKicksList.add(kick)
                 }
+
+                kicksList.clear()
+                kicksList.addAll(allKicksList)
 
             adapter.notifyDataSetChanged()
             }
