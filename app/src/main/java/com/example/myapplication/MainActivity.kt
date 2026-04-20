@@ -39,9 +39,19 @@ class MainActivity : AppCompatActivity() {
         adapter = KicksAdapter(this, kicksList)
         binding.kicksGridView.adapter = adapter
 
-
-
         fetchDataFromCloud()
+
+        binding.kicksGridView.setOnItemClickListener{_,_, positon,_ ->
+
+            val clickedKick = kicksList[positon]
+
+            val intent = android.content.Intent(this, KickDetailsActivity::class.java)
+
+            intent.putExtra("KICK_DATA", clickedKick)
+
+            startActivity(intent)
+
+        }
     }
 
 
