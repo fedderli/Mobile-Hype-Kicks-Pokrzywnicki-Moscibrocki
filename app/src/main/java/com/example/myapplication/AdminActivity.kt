@@ -10,11 +10,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class AdminActivity : AppCompatActivity() {
 
-    // Używamy ViewBinding tak jak w MainActivity
+
     private lateinit var binding: ActivityAdminBinding
     private val db = FirebaseFirestore.getInstance()
 
-    // Listy do obsługi ListView
+
     private lateinit var kicksList: MutableList<KicksModel>
     private lateinit var adapter: ArrayAdapter<String>
     private lateinit var displayNames: MutableList<String>
@@ -27,27 +27,31 @@ class AdminActivity : AppCompatActivity() {
         kicksList = mutableListOf()
         displayNames = mutableListOf()
 
-        // Prosty adapter tekstowy dla ListView (zgodnie z wymaganiem projektu)
+
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, displayNames)
         binding.lvAdminSneakers.adapter = adapter
 
-        // 1. Ładowanie listy butów (READ)
+
         loadKicksForAdmin()
 
-        // 2. Obsługa przycisku DODAJ (Zadanie #9)
+
         binding.btnAddSneaker.setOnClickListener {
             addNewKick()
         }
 
-        // 3. Obsługa usuwania (Zadanie #10)
+
         binding.lvAdminSneakers.setOnItemLongClickListener { _, _, position, _ ->
             showDeleteDialog(position)
             true
         }
+
+        binding.btnBack.setOnClickListener {
+            finish()
+        }
     }
 
     private fun loadKicksForAdmin() {
-        // Używamy addSnapshotListener, żeby lista odświeżała się sama "w locie"
+
         db.collection("HypeKicks").addSnapshotListener { snapshots, e ->
             if (e != null) return@addSnapshotListener
 
@@ -56,8 +60,7 @@ class AdminActivity : AppCompatActivity() {
                 displayNames.clear()
                 for (doc in snapshots) {
                     val kick = doc.toObject(KicksModel::class.java)
-                    // KLUCZOWE: Zapisujemy ID dokumentu, żeby móc go potem usunąć!
-                    // Upewnij się, że dodałeś pole 'id' do KicksModel (var id: String = "")
+
                     kick.id = doc.id
 
                     kicksList.add(kick)

@@ -29,6 +29,8 @@ class MainActivity : AppCompatActivity() {
         binding.kicksSearchView.setQuery("",false)
 
         binding.kicksSearchView.clearFocus()
+
+        fetchDataFromCloud()
     }
 
 
@@ -104,13 +106,16 @@ class MainActivity : AppCompatActivity() {
         adapter.notifyDataSetChanged()
     }
 
-    private fun fetchDataFromCloud(){
-        db.collection("HypeKicks")
-            .get()
-            .addOnSuccessListener { documents ->
-                kicksList.clear()
+    private fun fetchDataFromCloud() {
+        db.collection("HypeKicks").addSnapshotListener { snapshots, exception ->
+            if (exception != null) {
+                Log.e("FIREBASE_ERROR", "Błąd nasłuchiwania: ", exception)
+                return@addSnapshotListener
+            }
 
-                for (document in documents) {
+            if (snapshots != null) {
+                allKicksList.clear()
+                for (document in snapshots) {
                     val kick = document.toObject(KicksModel::class.java)
                     kick.id = document.id
                     allKicksList.add(kick)
@@ -118,13 +123,9 @@ class MainActivity : AppCompatActivity() {
 
                 kicksList.clear()
                 kicksList.addAll(allKicksList)
-
-            adapter.notifyDataSetChanged()
+                adapter.notifyDataSetChanged()
             }
-            .addOnFailureListener { exception ->
-                Log.e("FIREBASE_ERROR", "Błąd pobierania danych: ", exception)
-                Toast.makeText(this, "Błąd pobierania danych z chmury!", Toast.LENGTH_LONG).show()
-            }
+        }
     }
 
 
