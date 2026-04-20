@@ -2,17 +2,24 @@ package com.example.myapplication
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
+    lateinit var kicksList: MutableList<KicksModel>
+    lateinit var adapter: KicksAdapter
+    val db = FirebaseFirestore.getInstance()
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +34,42 @@ class MainActivity : AppCompatActivity() {
         }
 
         //seedDataBase()
+        kicksList = mutableListOf()
+
+        adapter = KicksAdapter(this, kicksList)
+        binding.kicksGridView.adapter = adapter
+
+
+
+        fetchDataFromCloud()
     }
+
+
+    private fun fetchDataFromCloud(){
+        db.collection("HypeKicks")
+            .get()
+            .addOnSuccessListener { documents ->
+                kicksList.clear()
+
+                for (document in documents){
+                    val brand = document.getString("brand") ?: "Nieznana marka"
+                    val modelName = document.getString("modelName") ?: "Nieznany Buty"
+                    val imageUrl = document.getString("imageUrl") ?: ""
+                    val relesaseYear = document.getLong("releaseYear")?.toInt() ?: 0
+                    val price = document.getLong("resellPrice")?.toInt() ?: 0
+
+                    val kick = KicksModel(brand,imageUrl,modelName,relesaseYear, price)
+                    kicksList.add(kick)
+                }
+
+            adapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FIREBASE_ERROR", "Błąd pobierania danych: ", exception)
+                Toast.makeText(this, "Błąd pobierania danych z chmury!", Toast.LENGTH_LONG).show()
+            }
+    }
+
 
 
     private fun seedDataBase(){
