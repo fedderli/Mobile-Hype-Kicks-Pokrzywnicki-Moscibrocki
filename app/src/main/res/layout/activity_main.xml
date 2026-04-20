@@ -33,4 +33,14 @@
             />
     </LinearLayout>
 
+    <GridView
+        android:id="@+id/kicksGridView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:padding="10dp"
+        android:numColumns="2"
+        android:horizontalSpacing="20dp"
+        android:verticalSpacing="20dp"/>
+
 </LinearLayout>
